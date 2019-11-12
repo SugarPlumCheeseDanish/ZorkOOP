@@ -44,7 +44,8 @@ public class Main {
         // set + build initial room
         roomBuilder[ROOM_ONE_I][ROOM_ONE_J] = true;
 
-        MazeGenerator();
+        roomList();
+        mazeGenerator();
 
         System.out.println("Room Builder array: ");
         System.out.println();
@@ -73,7 +74,7 @@ public class Main {
         if (((j-1) < jLowerWest) && ((j-1) >= 0)) { jLowerWest = j-1;}
     }
 
-    private static void MazeGenerator() {
+    private static void mazeGenerator() {
 
         while(roomIndex < 8){
 
@@ -90,6 +91,7 @@ public class Main {
                     roomBuilder[i][j] = true;
                     linkRoom(i, j);
                     adjustBounds(i, j);
+                    roomIndex++;
                     continue;
                 }
                 // check SOUTH : (i + 1, j)
@@ -97,6 +99,7 @@ public class Main {
                     roomBuilder[i][j] = true;
                     linkRoom(i, j);
                     adjustBounds(i, j);
+                    roomIndex++;
                     continue;
                 }
                 // check EAST : (i, j + 1)
@@ -104,6 +107,7 @@ public class Main {
                     roomBuilder[i][j] = true;
                     linkRoom(i, j);
                     adjustBounds(i, j);
+                    roomIndex++;
                     continue;
                 }
                 // check WEST : (i, j - 1)
@@ -111,6 +115,7 @@ public class Main {
                     roomBuilder[i][j] = true;
                     linkRoom(i, j);
                     adjustBounds(i, j);
+                    roomIndex++;
                     continue;
                 }
             }
@@ -168,7 +173,6 @@ public class Main {
                 // encountered a room, this means we can build! because we are now "connected"
                 // System.out.println("found room to the " + direction + "!");
                 // set next room (get index roomCounter) in the ArrayList's location field
-                roomIndex++;
                 return true;
             } else {
                 return false;   // encountered an empty room, not "connected" to an existing room
