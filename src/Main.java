@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.Scanner;
@@ -7,6 +8,7 @@ public class Main {
     private static final int ARRAY_TOP_BOUND = 7;
 
     private static boolean[][] roomBuilder = new boolean[ARRAY_TOP_BOUND][ARRAY_TOP_BOUND];     //defaults to false
+    private static ArrayList<Room> rooms = new ArrayList<>();
     private static Scanner keyboard = new Scanner(System.in);
     private static Random randomGenerator = new Random();
 
@@ -129,7 +131,16 @@ public class Main {
         }
     }
 
-
+    public static void roomList() {
+        rooms.add(new Room(1, 0, 0, "Hallway", "dead scorpion", -1, -1, -1, -1));
+        rooms.add(new Room(2, 0, 0, "Living Room", "piano", -1, -1, -1, -1));
+        rooms.add(new Room(3, 0, 0, "Library", "spiders", -1, -1, -1, -1));
+        rooms.add(new Room(4, 0, 0, "Kitchen", "bats", -1, -1, -1, -1));
+        rooms.add(new Room(5, 0, 0, "Dining Room", "dust and an empty box", -1, -1, -1, -1));
+        rooms.add(new Room(6, 0, 0, "Vault", "3 walking skeletons", -1, -1, -1, -1));
+        rooms.add(new Room(7, 0, 0, "Parlor", "treasure chest", -1, -1, -1, -1));
+        rooms.add(new Room(8, 0, 0, "Secret Room", "piles of gold", -1, -1, -1, -1));
+    }
 
 } // end class
 
