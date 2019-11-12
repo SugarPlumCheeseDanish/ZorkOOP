@@ -24,6 +24,9 @@ public class Main {
     private static int iUpperSouth = ROOM_ONE_I + 1;
     private static int jUpperEast = ROOM_ONE_J + 1;
     private static int jLowerWest = ROOM_ONE_J - 1;
+
+
+
 //    private static int iLowerNorth = 0;
 //    private static int iUpperSouth = ROOM_ONE_I + 1;
 //    private static int jUpperEast = ROOM_ONE_J + 1;
@@ -31,7 +34,7 @@ public class Main {
     //***********************************************************************
 
     // for building maze, using pre-generated roomDB
-    private static int roomCounter = 0;
+    private static int roomIndex = 1;
 
     // for testing as we code...
     // build a foundRoom boolean array (mask) to use for printing out rooms encountered so far
@@ -72,10 +75,10 @@ public class Main {
 
     private static void MazeGenerator() {
 
-        while(roomCounter < 15){
+        while(roomIndex < 8){
 
             System.out.println("\nTop of While Loop");
-            System.out.println("Room Counter is: " + roomCounter);
+            System.out.println("Room Counter is: " + roomIndex);
             int i = generateWithinBounds(iUpperSouth, iLowerNorth);
             int j = generateWithinBounds(jUpperEast, jLowerWest);
             System.out.println("Testing location: [" + i + "][" + j + "]");
@@ -85,24 +88,28 @@ public class Main {
                 // check NORTH : (i - 1, j)
                 if(checkSurround((i-1), j, "North")) {
                     roomBuilder[i][j] = true;
+                    linkRoom(i, j);
                     adjustBounds(i, j);
                     continue;
                 }
                 // check SOUTH : (i + 1, j)
                 if(checkSurround((i+1), j, "South")) {
                     roomBuilder[i][j] = true;
+                    linkRoom(i, j);
                     adjustBounds(i, j);
                     continue;
                 }
-                // check EAST : (i, j - 1)
-                if(checkSurround(i, (j-1), "East")) {
+                // check EAST : (i, j + 1)
+                if(checkSurround(i, (j+1), "East")) {
                     roomBuilder[i][j] = true;
+                    linkRoom(i, j);
                     adjustBounds(i, j);
                     continue;
                 }
-                // check WEST : (i, j + 1)
-                if(checkSurround(i, (j+1), "West")) {
+                // check WEST : (i, j - 1)
+                if(checkSurround(i, (j-1), "West")) {
                     roomBuilder[i][j] = true;
+                    linkRoom(i, j);
                     adjustBounds(i, j);
                     continue;
                 }
@@ -114,13 +121,54 @@ public class Main {
 
     } // end MazeGenerator
 
+    private static void linkRoom(int myCurrentI, int myCurrentJ) {
+        Room myRoom = rooms.get(roomIndex);
+        myRoom.setI(myCurrentI);
+        myRoom.setJ(myCurrentJ);
+
+        for(int k = 0; k < roomIndex; k++) {
+            Room foundRoom = rooms.get(k);
+            int foundRoomI = foundRoom.getI();
+            int foundRoomJ = foundRoom.getJ();
+
+            // for every preceding room (aka foundRoom) we are going to check
+            // every cardinal direction of that preceding room
+            // to see if it connects to my room and if so then link them by direction
+
+            // tweak foundRoom NORTH : foundRoomI - 1
+            if(foundRoomI - 1 == myCurrentI && foundRoomJ == myCurrentJ) {
+                foundRoom.setNorth(myRoom.getId());
+                myRoom.setSouth(foundRoom.getId());
+            }
+
+            // tweak foundRoom SOUTH : foundRoomI + 1
+            if(foundRoomI + 1 == myCurrentI && foundRoomJ == myCurrentJ) {
+                foundRoom.setSouth(myRoom.getId());
+                myRoom.setNorth(foundRoom.getId());
+            }
+
+            // tweak foundRoom EAST : foundRoomJ + 1
+            if(foundRoomJ + 1 == myCurrentJ && foundRoomI == myCurrentI) {
+                foundRoom.setEast(myRoom.getId());
+                myRoom.setWest(foundRoom.getId());
+            }
+
+            // tweak foundRoom WEST : foundRoomJ - 1
+            if(foundRoomJ - 1 == myCurrentJ && foundRoomI == myCurrentI) {
+                foundRoom.setWest(myRoom.getId());
+                myRoom.setEast(foundRoom.getId());
+            }
+        } // end for loop
+
+    }
+
     private static boolean checkSurround(int i, int j, String direction){
         try {
             if (roomBuilder[i][j]) {
                 // encountered a room, this means we can build! because we are now "connected"
                 // System.out.println("found room to the " + direction + "!");
                 // set next room (get index roomCounter) in the ArrayList's location field
-                roomCounter++;
+                roomIndex++;
                 return true;
             } else {
                 return false;   // encountered an empty room, not "connected" to an existing room
@@ -132,7 +180,7 @@ public class Main {
     }
 
     public static void roomList() {
-        rooms.add(new Room(1, 0, 0, "Hallway", "dead scorpion", -1, -1, -1, -1));
+        rooms.add(new Room(1, ROOM_ONE_I, ROOM_ONE_J, "Hallway", "dead scorpion", -1, -1, -1, -1));
         rooms.add(new Room(2, 0, 0, "Living Room", "piano", -1, -1, -1, -1));
         rooms.add(new Room(3, 0, 0, "Library", "spiders", -1, -1, -1, -1));
         rooms.add(new Room(4, 0, 0, "Kitchen", "bats", -1, -1, -1, -1));
