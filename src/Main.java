@@ -1,138 +1,104 @@
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Random;
 import java.util.Scanner;
 
 public class Main {
 
+    // FINAL variables for MAZE BUILDING ::
+    // sets the SQUARE shape of our overall "field" for the room maze
     private static final int ARRAY_TOP_BOUND = 7;
-
-    private static boolean[][] roomBuilder = new boolean[ARRAY_TOP_BOUND][ARRAY_TOP_BOUND];     //defaults to false
-    private static ArrayList<Room> rooms = new ArrayList<>();
-    private static Scanner keyboard = new Scanner(System.in);
-    private static Random randomGenerator = new Random();
-
-    // room one location
+    // sets room 1's location. be sure to set within bounds
     private static final int ROOM_ONE_I = 3;
     private static final int ROOM_ONE_J = 3;
 
-    //***********************************************************************
-    // THIS WILL NEED CODE !!! A method to set them watching out for bounds
-    // set INITIAL bounds on i & j, based on initial location
-    // CAREFUL!!! initial bounds need to be > 1 for this stuff... and < UPPER...
-    private static int iLowerNorth = ROOM_ONE_I - 1;
-    private static int iUpperSouth = ROOM_ONE_I + 1;
-    private static int jUpperEast = ROOM_ONE_J + 1;
-    private static int jLowerWest = ROOM_ONE_J - 1;
+    // Other variables for MAZE BUILDING ::
+    private static Random randomGenerator = new Random();
+    // these will be set via a function call at the top of main (needs logic)
+    private static int iLowerNorth;
+    private static int iUpperSouth;
+    private static int jUpperEast;
+    private static int jLowerWest;
+    // for adding rooms from pre-set ArrayList<Room> roomDB
+    private static int roomIndex;
+    // the room maze field :: boolean value indicates whether a spot is taken by a room or not
+    private static boolean[][] roomLocation = new boolean[ARRAY_TOP_BOUND][ARRAY_TOP_BOUND];     //defaults to false
+    // the roomDB :: preset via method call to setRoomDB()
+    private static ArrayList<Room> roomDB = new ArrayList<>();
+    // total number of pre-set rooms in current implementation :: set in method setRoomDB()
+    private static int numRooms;
 
 
-
-//    private static int iLowerNorth = 0;
-//    private static int iUpperSouth = ROOM_ONE_I + 1;
-//    private static int jUpperEast = ROOM_ONE_J + 1;
-//    private static int jLowerWest = 0;
-    //***********************************************************************
-
-    // for building maze, using pre-generated roomDB
-    private static int roomIndex = 1;
+    private static Scanner keyboard = new Scanner(System.in);
+    private static int navigationIndex;
 
     // for testing as we code...
     // build a foundRoom boolean array (mask) to use for printing out rooms encountered so far
 
     public static void main(String[] args){
 
-        // set + build initial room
-        roomBuilder[ROOM_ONE_I][ROOM_ONE_J] = true;
+        setBounds();
+        setRoomDB();
+        generateMaze();
 
-        roomList();
-        mazeGenerator();
-
-        System.out.println("Room Builder array: ");
+        System.out.println("Room Location Array: ");
         System.out.println();
         for (int i = 0; i < ARRAY_TOP_BOUND; i++) {
             for (int j = 0; j < ARRAY_TOP_BOUND; j++) {
-                System.out.print("\t"+roomBuilder[i][j]);
+                System.out.print("\t"+ roomLocation[i][j]);
             }
             System.out.print("\n");
         }
 
+        // always start in room one ::
+        navigationIndex = 0;
+        System.out.println("Welcome to Zork!");
+        String userStr;
+        while(true) {
+            // Navigation Step ::
+            Room myRoom = roomDB.get(navigationIndex);
+            System.out.println(myRoom.display());
+            userStr = keyboard.nextLine();
+            if (userStr.equalsIgnoreCase("n")) {
+                // user wants to navigate north
+                navigationIndex = myRoom.getNorth()-1;
+            }
+            else if (userStr.equalsIgnoreCase("s")) {
+                // user wants to navigate south
+                navigationIndex = myRoom.getSouth()-1;
+            }
+            else if (userStr.equalsIgnoreCase("e")) {
+                // user wants to navigate east
+                navigationIndex = myRoom.getEast()-1;
+            }
+            else if (userStr.equalsIgnoreCase("w")) {
+                // user wants to navigate west
+                navigationIndex = myRoom.getWest()-1;
+            }
+            else if (userStr.equalsIgnoreCase("q")){
+                // user wants to quit!
+                break;
+            }
+            if (navigationIndex < 0) {
+                System.out.println("Invalid navigation option!");
+                System.out.println(myRoom.display());
+            }
+        } // end play loop
+
     } // end main
 
-    private static int generateWithinBounds(int upper, int lower){
-        // you have to add one to the range, because subtraction "leaves one out"
-        // when we want to include lower and include upper...
-        int range = upper - lower + 1;
-        return randomGenerator.nextInt(range) + lower;
-    }
-
-    private static void adjustBounds(int i, int j){
-        // this method adjusts the bounds for building the maze
-        // we check to see if our current location would push our bounds out further...
-        if (((i-1) < iLowerNorth) && ((i-1) >= 0)) { iLowerNorth = i-1;}
-        if (((i+1) > iUpperSouth) && ((i+1) < ARRAY_TOP_BOUND)) { iUpperSouth = i+1;}
-        if (((j+1) > jUpperEast) && ((j+1) < ARRAY_TOP_BOUND)) { jUpperEast = j+1;}
-        if (((j-1) < jLowerWest) && ((j-1) >= 0)) { jLowerWest = j-1;}
-    }
-
-    private static void mazeGenerator() {
-
-        while(roomIndex < 8){
-
-            System.out.println("\nTop of While Loop");
-            System.out.println("Room Counter is: " + roomIndex);
-            int i = generateWithinBounds(iUpperSouth, iLowerNorth);
-            int j = generateWithinBounds(jUpperEast, jLowerWest);
-            System.out.println("Testing location: [" + i + "][" + j + "]");
-
-            // if my current location is empty :: available for possible building...
-            if (!roomBuilder[i][j]) {
-                // check NORTH : (i - 1, j)
-                if(checkSurround((i-1), j, "North")) {
-                    roomBuilder[i][j] = true;
-                    linkRoom(i, j);
-                    adjustBounds(i, j);
-                    roomIndex++;
-                    continue;
-                }
-                // check SOUTH : (i + 1, j)
-                if(checkSurround((i+1), j, "South")) {
-                    roomBuilder[i][j] = true;
-                    linkRoom(i, j);
-                    adjustBounds(i, j);
-                    roomIndex++;
-                    continue;
-                }
-                // check EAST : (i, j + 1)
-                if(checkSurround(i, (j+1), "East")) {
-                    roomBuilder[i][j] = true;
-                    linkRoom(i, j);
-                    adjustBounds(i, j);
-                    roomIndex++;
-                    continue;
-                }
-                // check WEST : (i, j - 1)
-                if(checkSurround(i, (j-1), "West")) {
-                    roomBuilder[i][j] = true;
-                    linkRoom(i, j);
-                    adjustBounds(i, j);
-                    roomIndex++;
-                    continue;
-                }
-            }
-            else {
-                // System.out.println("Room was taken!");
-            }
-        } // end while
-
-    } // end MazeGenerator
-
+    // *********************************************************************************
+    // linkRoom method :: links up the current room, at location (i,j), to any prior rooms
+    // the current room to be added to our maze is at roomIndex in our roomDB ArrayList
+    // the current room's location is specified by local vars myCurrentI and myCurrentJ
+    // this function will LINK the current room to any of the previous rooms which are adjacent
+    // *********************************************************************************
     private static void linkRoom(int myCurrentI, int myCurrentJ) {
-        Room myRoom = rooms.get(roomIndex);
+        Room myRoom = roomDB.get(roomIndex);
         myRoom.setI(myCurrentI);
         myRoom.setJ(myCurrentJ);
 
         for(int k = 0; k < roomIndex; k++) {
-            Room foundRoom = rooms.get(k);
+            Room foundRoom = roomDB.get(k);
             int foundRoomI = foundRoom.getI();
             int foundRoomJ = foundRoom.getJ();
 
@@ -167,9 +133,72 @@ public class Main {
 
     }
 
+    //*************************************************************
+    // generateMaze method :: randomly generate connected maze of rooms
+    // using pre-set rooms as defined in our roomsDB ArrayList
+    //*************************************************************
+    private static void generateMaze() {
+
+        // set initial room in maze!
+        roomLocation[ROOM_ONE_I][ROOM_ONE_J] = true;
+
+        // tracks the current room we are assigning (we already did room zero, above!)
+        roomIndex = 1;
+
+        // continue looping until all rooms have been assigned
+        while(roomIndex < numRooms){
+
+            System.out.println("\nTop of While Loop");
+            System.out.println("Room Counter is: " + roomIndex);
+            int i = generateWithinBounds(iUpperSouth, iLowerNorth);
+            int j = generateWithinBounds(jUpperEast, jLowerWest);
+            System.out.println("Testing location: [" + i + "][" + j + "]");
+
+            // if my current location is empty :: available for possible building...
+            if (!roomLocation[i][j]) {
+                // check NORTH : (i - 1, j)
+                if(checkSurround((i-1), j, "North")) {
+                    roomLocation[i][j] = true;
+                    linkRoom(i, j);
+                    adjustBounds(i, j);
+                    roomIndex++;
+                    continue;
+                }
+                // check SOUTH : (i + 1, j)
+                if(checkSurround((i+1), j, "South")) {
+                    roomLocation[i][j] = true;
+                    linkRoom(i, j);
+                    adjustBounds(i, j);
+                    roomIndex++;
+                    continue;
+                }
+                // check EAST : (i, j + 1)
+                if(checkSurround(i, (j+1), "East")) {
+                    roomLocation[i][j] = true;
+                    linkRoom(i, j);
+                    adjustBounds(i, j);
+                    roomIndex++;
+                    continue;
+                }
+                // check WEST : (i, j - 1)
+                if(checkSurround(i, (j-1), "West")) {
+                    roomLocation[i][j] = true;
+                    linkRoom(i, j);
+                    adjustBounds(i, j);
+                    roomIndex++;
+                    continue;
+                }
+            }
+            else {
+                // System.out.println("Room was taken!");
+            }
+        } // end while
+
+    } // end MazeGenerator
+
     private static boolean checkSurround(int i, int j, String direction){
         try {
-            if (roomBuilder[i][j]) {
+            if (roomLocation[i][j]) {
                 // encountered a room, this means we can build! because we are now "connected"
                 // System.out.println("found room to the " + direction + "!");
                 // set next room (get index roomCounter) in the ArrayList's location field
@@ -183,15 +212,47 @@ public class Main {
         }
     }
 
-    public static void roomList() {
-        rooms.add(new Room(1, ROOM_ONE_I, ROOM_ONE_J, "Hallway", "dead scorpion", -1, -1, -1, -1));
-        rooms.add(new Room(2, 0, 0, "Living Room", "piano", -1, -1, -1, -1));
-        rooms.add(new Room(3, 0, 0, "Library", "spiders", -1, -1, -1, -1));
-        rooms.add(new Room(4, 0, 0, "Kitchen", "bats", -1, -1, -1, -1));
-        rooms.add(new Room(5, 0, 0, "Dining Room", "dust and an empty box", -1, -1, -1, -1));
-        rooms.add(new Room(6, 0, 0, "Vault", "3 walking skeletons", -1, -1, -1, -1));
-        rooms.add(new Room(7, 0, 0, "Parlor", "treasure chest", -1, -1, -1, -1));
-        rooms.add(new Room(8, 0, 0, "Secret Room", "piles of gold", -1, -1, -1, -1));
+    private static int generateWithinBounds(int upper, int lower){
+        // you have to add one to the range, because subtraction "leaves one out"
+        // when we want to include lower and include upper...
+        int range = upper - lower + 1;
+        return randomGenerator.nextInt(range) + lower;
+    }
+
+    private static void adjustBounds(int i, int j){
+        // this method adjusts the bounds for building the maze
+        // we check to see if our current location would push our bounds out further...
+        if (((i-1) < iLowerNorth) && ((i-1) >= 0)) { iLowerNorth = i-1;}
+        if (((i+1) > iUpperSouth) && ((i+1) < ARRAY_TOP_BOUND)) { iUpperSouth = i+1;}
+        if (((j+1) > jUpperEast) && ((j+1) < ARRAY_TOP_BOUND)) { jUpperEast = j+1;}
+        if (((j-1) < jLowerWest) && ((j-1) >= 0)) { jLowerWest = j-1;}
+    }
+
+    //***********************************************************************
+    // setRoomDB method :: hard-codes the initial values for our rooms
+    //***********************************************************************
+    private static void setRoomDB() {
+        roomDB.add(new Room(1, ROOM_ONE_I, ROOM_ONE_J, "Hallway", "dead scorpion", -1, -1, -1, -1));
+        roomDB.add(new Room(2, 0, 0, "Living Room", "piano", -1, -1, -1, -1));
+        roomDB.add(new Room(3, 0, 0, "Library", "spiders", -1, -1, -1, -1));
+        roomDB.add(new Room(4, 0, 0, "Kitchen", "bats", -1, -1, -1, -1));
+        roomDB.add(new Room(5, 0, 0, "Dining Room", "dust and an empty box", -1, -1, -1, -1));
+        roomDB.add(new Room(6, 0, 0, "Vault", "3 walking skeletons", -1, -1, -1, -1));
+        roomDB.add(new Room(7, 0, 0, "Parlor", "treasure chest", -1, -1, -1, -1));
+        roomDB.add(new Room(8, 0, 0, "Secret Room", "piles of gold", -1, -1, -1, -1));
+        numRooms = 8;
+    }
+
+    //***********************************************************************
+    // setBounds() method :: to safely set the bounds based on initial (static final) values
+    // this method is a safeguard for if we wish to tweak the initial values of our game
+    // ... maybe one day those initial values could be set via String[] args to main(), so...
+    //***********************************************************************
+    private static void setBounds() {
+        if (ROOM_ONE_I - 1 >= 0) {iLowerNorth = ROOM_ONE_I - 1;} else {iLowerNorth = 0;}
+        if (ROOM_ONE_I + 1 < ARRAY_TOP_BOUND) {iUpperSouth = ROOM_ONE_I + 1;} else {iUpperSouth = (ARRAY_TOP_BOUND-1);}
+        if (ROOM_ONE_J + 1 < ARRAY_TOP_BOUND) {jUpperEast = ROOM_ONE_J + 1;} else {jUpperEast = (ARRAY_TOP_BOUND-1);}
+        if (ROOM_ONE_J - 1 >= 0) {jLowerWest = ROOM_ONE_J - 1;} else {jLowerWest = (ARRAY_TOP_BOUND-1);}
     }
 
 } // end class

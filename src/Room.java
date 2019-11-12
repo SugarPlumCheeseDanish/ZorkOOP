@@ -92,4 +92,18 @@ public class Room {
     public void setWest(int west) {
         this.west = west;
     }
+
+    // display the Room to the user
+    public String display() {
+        String str = "";
+        str += "You are in Room #" + id + ", the " + name + ".\nYou see " + description + ".\n";
+        str += "You can move to the: \n";
+        if(north != -1) { str += "\t[\"n\"] North \n"; }
+        if (south != -1) { str += "\t[\"s\"] South \n"; }
+        if (east != -1) { str += "\t[\"e\"] East \n"; }
+        if (west != -1) { str += "\t[\"w\"] West \n"; }
+        str += "\t[\"q\"] or Quit \n";
+        str += "Your choice: ";
+        return str;
+    }
 }
