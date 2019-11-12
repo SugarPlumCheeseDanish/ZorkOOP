@@ -103,6 +103,7 @@ public class Room {
         if (east != -1) { str += "\t[\"e\"] East \n"; }
         if (west != -1) { str += "\t[\"w\"] West \n"; }
         str += "\t[\"q\"] or Quit \n";
+        str += "\t[\"v\"] to View \n";
         str += "Your choice: ";
         return str;
     }

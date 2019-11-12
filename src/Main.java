@@ -78,6 +78,9 @@ public class Main {
                 // user wants to quit!
                 break;
             }
+            else if (userStr.equalsIgnoreCase("v")) {
+                view();
+            }
             if (navigationIndex < 0) {
                 System.out.println("Invalid navigation option!");
                 System.out.println(myRoom.display());
@@ -85,6 +88,22 @@ public class Main {
         } // end play loop
 
     } // end main
+
+    // **********************************
+    // view :: to Show our room Array
+    // this method shows the true/false roomLocation array,
+    // for now!
+    // *********************************
+    private static void view(){
+        System.out.println("Room Location Array: ");
+        System.out.println();
+        for (int i = 0; i < ARRAY_TOP_BOUND; i++) {
+            for (int j = 0; j < ARRAY_TOP_BOUND; j++) {
+                System.out.print("\t"+ roomLocation[i][j]);
+            }
+            System.out.print("\n");
+        }
+    }
 
     // *********************************************************************************
     // linkRoom method :: links up the current room, at location (i,j), to any prior rooms
