@@ -22,17 +22,21 @@ public class Main {
     private static int roomIndex;
     // the room maze field :: boolean value indicates whether a spot is taken by a room or not
     private static boolean[][] roomLocation = new boolean[ARRAY_TOP_BOUND][ARRAY_TOP_BOUND];     //defaults to false
+
+    // Variables for setting our pre-set DATABASE of ROOMS
     // the roomDB :: preset via method call to setRoomDB()
     private static ArrayList<Room> roomDB = new ArrayList<>();
     // total number of pre-set rooms in current implementation :: set in method setRoomDB()
     private static int numRooms;
 
-
+    // GENERAL USE variables
     private static Scanner keyboard = new Scanner(System.in);
     private static int navigationIndex;
 
     // for testing as we code...
     // build a foundRoom boolean array (mask) to use for printing out rooms encountered so far
+    private static boolean[][] foundRooms = new boolean[ARRAY_TOP_BOUND][ARRAY_TOP_BOUND]; // default false
+    private static int[][] map = new int[ARRAY_TOP_BOUND][ARRAY_TOP_BOUND];  // default zero
 
     public static void main(String[] args){
 
@@ -40,24 +44,50 @@ public class Main {
         setRoomDB();
         generateMaze();
 
-        System.out.println("Room Location Array: ");
-        System.out.println();
-        for (int i = 0; i < ARRAY_TOP_BOUND; i++) {
-            for (int j = 0; j < ARRAY_TOP_BOUND; j++) {
-                System.out.print("\t"+ roomLocation[i][j]);
-            }
-            System.out.print("\n");
-        }
+//        System.out.println("Room Location Array: ");
+//        System.out.println();
+//        for (int i = 0; i < ARRAY_TOP_BOUND; i++) {
+//            for (int j = 0; j < ARRAY_TOP_BOUND; j++) {
+//                System.out.print("\t"+ roomLocation[i][j]);
+//            }
+//            System.out.print("\n");
+//        }
 
-        // always start in room one ::
-        navigationIndex = 0;
+        // general intro ::
         System.out.println("Welcome to Zork!");
         String userStr;
+
+        // Just for room one ::
+        navigationIndex = 0;
+        Room myRoom = roomDB.get(navigationIndex);
+//        boolean playAgain = false;
+//        System.out.print(myRoom.display());
+//        userStr = keyboard.nextLine();
+//        System.out.println("Just did room one, base case.");
+//        if (!userStr.equalsIgnoreCase("q")){playAgain = true;}
+
+        // for any choice after that ::
         while(true) {
+//            System.out.println("Top of do-while..........");
+
             // Navigation Step ::
-            Room myRoom = roomDB.get(navigationIndex);
-            System.out.println(myRoom.display());
-            userStr = keyboard.nextLine();
+            if (navigationIndex < 0) {
+                System.out.println("Invalid navigation option: ");
+                System.out.print(myRoom.display());
+                userStr = keyboard.nextLine();
+            }
+            else {
+//                System.out.println("Valid option, yay!!!!");
+                myRoom = roomDB.get(navigationIndex);
+                unMask(myRoom);
+                System.out.print(myRoom.display());
+                userStr = keyboard.nextLine();
+            }
+
+            // For debuggin ::
+            System.out.println("User Choice: " + userStr);
+
+            // Set next choice ::
             if (userStr.equalsIgnoreCase("n")) {
                 // user wants to navigate north
                 navigationIndex = myRoom.getNorth()-1;
@@ -74,35 +104,81 @@ public class Main {
                 // user wants to navigate west
                 navigationIndex = myRoom.getWest()-1;
             }
+            else if (userStr.equalsIgnoreCase("v")) {
+                view(myRoom);
+            }
             else if (userStr.equalsIgnoreCase("q")){
                 // user wants to quit!
                 break;
             }
-            else if (userStr.equalsIgnoreCase("v")) {
-                view();
-            }
-            if (navigationIndex < 0) {
-                System.out.println("Invalid navigation option!");
-                System.out.println(myRoom.display());
-            }
-        } // end play loop
+
+        }
+        // end play loop
 
     } // end main
+
+    private static void unMask(Room myRoom){
+        foundRooms[myRoom.getI()][myRoom.getJ()] = true;
+    }
 
     // **********************************
     // view :: to Show our room Array
     // this method shows the true/false roomLocation array,
     // for now!
     // *********************************
-    private static void view(){
-        System.out.println("Room Location Array: ");
+    private static void view(Room myRoom){
+
+//        System.out.println("Room Location BOOLEAN Map Array: \n");
+//        System.out.println();
+//        for (int i = 0; i < ARRAY_TOP_BOUND; i++) {
+//            for (int j = 0; j < ARRAY_TOP_BOUND; j++) {
+//                System.out.print("\t"+ roomLocation[i][j]);
+//            }
+//            System.out.print("\n\n");
+//        }
+
+        System.out.println("FULL Room Map: \n");
         System.out.println();
         for (int i = 0; i < ARRAY_TOP_BOUND; i++) {
             for (int j = 0; j < ARRAY_TOP_BOUND; j++) {
-                System.out.print("\t"+ roomLocation[i][j]);
+                if (map[i][j] != 0) {
+                    System.out.print("\t" + map[i][j]);
+                }
+                else {
+                    System.out.print("\t");
+                }
             }
-            System.out.print("\n");
+            System.out.print("\n\n");
         }
+
+        System.out.println("X MARKS THE SPOT: \n");
+        System.out.println();
+        for (int i = 0; i < ARRAY_TOP_BOUND; i++) {
+            for (int j = 0; j < ARRAY_TOP_BOUND; j++) {
+                if(foundRooms[i][j]){
+                    if(i == myRoom.getI() && j == myRoom.getJ()) {
+                        System.out.print("\t\u2606");
+                        // DISCARDED OPTIONS: ☠   \u274C == fat x
+                    }
+                    else {System.out.print("\t"+ map[i][j]);}
+                }
+                else {
+                    System.out.print("\t");
+                }
+            }
+            System.out.print("\n\n");
+        }
+
+//        System.out.println("Rooms Found so far, BOOLEAN Array (this is our mask): \n");
+//        System.out.println();
+//        for (int i = 0; i < ARRAY_TOP_BOUND; i++) {
+//            for (int j = 0; j < ARRAY_TOP_BOUND; j++) {
+//                System.out.print("\t"+ foundRooms[i][j]);
+//            }
+//            System.out.print("\n\n");
+//        }
+
+
     }
 
     // *********************************************************************************
@@ -115,6 +191,7 @@ public class Main {
         Room myRoom = roomDB.get(roomIndex);
         myRoom.setI(myCurrentI);
         myRoom.setJ(myCurrentJ);
+        map[myCurrentI][myCurrentJ] = myRoom.getId();
 
         for(int k = 0; k < roomIndex; k++) {
             Room foundRoom = roomDB.get(k);
@@ -160,6 +237,7 @@ public class Main {
 
         // set initial room in maze!
         roomLocation[ROOM_ONE_I][ROOM_ONE_J] = true;
+        map[ROOM_ONE_I][ROOM_ONE_J] = 1;
 
         // tracks the current room we are assigning (we already did room zero, above!)
         roomIndex = 1;
@@ -167,11 +245,11 @@ public class Main {
         // continue looping until all rooms have been assigned
         while(roomIndex < numRooms){
 
-            System.out.println("\nTop of While Loop");
-            System.out.println("Room Counter is: " + roomIndex);
+//            System.out.println("\nTop of While Loop");
+//            System.out.println("Room Counter is: " + roomIndex);
             int i = generateWithinBounds(iUpperSouth, iLowerNorth);
             int j = generateWithinBounds(jUpperEast, jLowerWest);
-            System.out.println("Testing location: [" + i + "][" + j + "]");
+//            System.out.println("Testing location: [" + i + "][" + j + "]");
 
             // if my current location is empty :: available for possible building...
             if (!roomLocation[i][j]) {
@@ -251,13 +329,13 @@ public class Main {
     // setRoomDB method :: hard-codes the initial values for our rooms
     //***********************************************************************
     private static void setRoomDB() {
-        roomDB.add(new Room(1, ROOM_ONE_I, ROOM_ONE_J, "Hallway", "dead scorpion", -1, -1, -1, -1));
-        roomDB.add(new Room(2, 0, 0, "Living Room", "piano", -1, -1, -1, -1));
-        roomDB.add(new Room(3, 0, 0, "Library", "spiders", -1, -1, -1, -1));
+        roomDB.add(new Room(1, ROOM_ONE_I, ROOM_ONE_J, "Hallway", "a dead scorpion", -1, -1, -1, -1));
+        roomDB.add(new Room(2, 0, 0, "Living Room", "a piano", -1, -1, -1, -1));
+        roomDB.add(new Room(3, 0, 0, "Library", "some spiders", -1, -1, -1, -1));
         roomDB.add(new Room(4, 0, 0, "Kitchen", "bats", -1, -1, -1, -1));
         roomDB.add(new Room(5, 0, 0, "Dining Room", "dust and an empty box", -1, -1, -1, -1));
         roomDB.add(new Room(6, 0, 0, "Vault", "3 walking skeletons", -1, -1, -1, -1));
-        roomDB.add(new Room(7, 0, 0, "Parlor", "treasure chest", -1, -1, -1, -1));
+        roomDB.add(new Room(7, 0, 0, "Parlor", "a treasure chest", -1, -1, -1, -1));
         roomDB.add(new Room(8, 0, 0, "Secret Room", "piles of gold", -1, -1, -1, -1));
         numRooms = 8;
     }
