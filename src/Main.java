@@ -54,17 +54,12 @@ public class Main {
 //        }
 
         // general intro ::
-        System.out.println("Welcome to Zork!");
+        System.out.println("\nWelcome to Zork!");
         String userStr;
 
         // Just for room one ::
         navigationIndex = 0;
         Room myRoom = roomDB.get(navigationIndex);
-//        boolean playAgain = false;
-//        System.out.print(myRoom.display());
-//        userStr = keyboard.nextLine();
-//        System.out.println("Just did room one, base case.");
-//        if (!userStr.equalsIgnoreCase("q")){playAgain = true;}
 
         // for any choice after that ::
         while(true) {
@@ -72,7 +67,8 @@ public class Main {
 
             // Navigation Step ::
             if (navigationIndex < 0) {
-                System.out.println("Invalid navigation option: ");
+                System.out.println("Invalid navigation option! Please try again...");
+                // redisplay same room, don't do anything else...
                 System.out.print(myRoom.display());
                 userStr = keyboard.nextLine();
             }
@@ -80,6 +76,7 @@ public class Main {
 //                System.out.println("Valid option, yay!!!!");
                 myRoom = roomDB.get(navigationIndex);
                 unMask(myRoom);
+                if(myRoom.isSecret() && !(myRoom.isSecretOpen())) {unMaskSecret(myRoom);}
                 System.out.print(myRoom.display());
                 userStr = keyboard.nextLine();
             }
@@ -107,9 +104,28 @@ public class Main {
             else if (userStr.equalsIgnoreCase("v")) {
                 view(myRoom);
             }
+            else if (userStr.equalsIgnoreCase("*")) {
+                if(myRoom.isSecret() && myRoom.isSecretOpen()){
+                    // we have only one secret room right now, and it's room index 9.
+                    navigationIndex = myRoom.getSecretRoomIndex();
+                } else {
+                    System.out.println("Invalid navigation option. Please try again...");
+                }
+            }
+            else if (userStr.equalsIgnoreCase("x")) {
+                if(myRoom.isiAmSecret()) {
+                    navigationIndex = myRoom.getSecretExit();
+                }
+                else {
+                    System.out.println("Invalid navigation option. Please try again...");
+                }
+            }
             else if (userStr.equalsIgnoreCase("q")){
                 // user wants to quit!
                 break;
+            }
+            else {
+                System.out.println("Invalid navigation option. Please try again...");
             }
 
         }
@@ -117,6 +133,25 @@ public class Main {
 
     } // end main
 
+    // **************************************
+    // unMaskSecret :: this opens up a (hard-coded) secret room...
+    // **************************************
+    private static void unMaskSecret(Room myRoom){
+        // use Math.random() to set up a one in four chance
+        int random = 1 + ((int) (Math.random() * 4));
+        if (random == 3) {
+            System.out.println();
+            System.out.println("\t************************************");
+            System.out.println("\t \u2606 You have found a Secret Room! \u2606");
+            System.out.println("\t************************************");
+            myRoom.setSecretOpen(true);
+        }
+    }
+
+    // **************************************
+    // unMask :: unMask a room on the room map
+    // this is just for telling us that a room has been visited!
+    // **************************************
     private static void unMask(Room myRoom){
         foundRooms[myRoom.getI()][myRoom.getJ()] = true;
     }
@@ -136,29 +171,29 @@ public class Main {
 //            }
 //            System.out.print("\n\n");
 //        }
+//
+//        System.out.println("FULL Room Map: \n");
+//        System.out.println();
+//        for (int i = 0; i < ARRAY_TOP_BOUND; i++) {
+//            for (int j = 0; j < ARRAY_TOP_BOUND; j++) {
+//                if (map[i][j] != 0) {
+//                    System.out.print("\t" + map[i][j]);
+//                }
+//                else {
+//                    System.out.print("\t");
+//                }
+//            }
+//            System.out.print("\n\n");
+//        }
 
-        System.out.println("FULL Room Map: \n");
-        System.out.println();
-        for (int i = 0; i < ARRAY_TOP_BOUND; i++) {
-            for (int j = 0; j < ARRAY_TOP_BOUND; j++) {
-                if (map[i][j] != 0) {
-                    System.out.print("\t" + map[i][j]);
-                }
-                else {
-                    System.out.print("\t");
-                }
-            }
-            System.out.print("\n\n");
-        }
-
-        System.out.println("X MARKS THE SPOT: \n");
-        System.out.println();
+//        System.out.println("X MARKS THE SPOT: \n");
+//        System.out.println();
         for (int i = 0; i < ARRAY_TOP_BOUND; i++) {
             for (int j = 0; j < ARRAY_TOP_BOUND; j++) {
                 if(foundRooms[i][j]){
                     if(i == myRoom.getI() && j == myRoom.getJ()) {
                         System.out.print("\t\u2606");
-                        // DISCARDED OPTIONS: ☠   \u274C == fat x
+                        // DISCARDED OPTIONS: ☠   \u274C == fat x   \u2606 == white star
                     }
                     else {System.out.print("\t"+ map[i][j]);}
                 }
@@ -166,7 +201,7 @@ public class Main {
                     System.out.print("\t");
                 }
             }
-            System.out.print("\n\n");
+            System.out.print("\n");
         }
 
 //        System.out.println("Rooms Found so far, BOOLEAN Array (this is our mask): \n");
@@ -192,6 +227,16 @@ public class Main {
         myRoom.setI(myCurrentI);
         myRoom.setJ(myCurrentJ);
         map[myCurrentI][myCurrentJ] = myRoom.getId();
+
+        // SECRET ROOM CHECK ::
+        // we know that it's room 3 that has the secret room
+        // And, we know that Room 3's secret room is room 10 (index = 9)
+        // what we're doing here, is giving our secret room of index 9 the SAME LOCATION as room 3!
+        if (myRoom.getId() == 3) {
+            int secretIndex = myRoom.getSecretRoomIndex();
+            roomDB.get(secretIndex).setI(myCurrentI);
+            roomDB.get(secretIndex).setJ(myCurrentJ);
+        }
 
         for(int k = 0; k < roomIndex; k++) {
             Room foundRoom = roomDB.get(k);
@@ -331,13 +376,24 @@ public class Main {
     private static void setRoomDB() {
         roomDB.add(new Room(1, ROOM_ONE_I, ROOM_ONE_J, "Hallway", "a dead scorpion", -1, -1, -1, -1));
         roomDB.add(new Room(2, 0, 0, "Living Room", "a piano", -1, -1, -1, -1));
+        // hard coded room that connects to a secret room. INDEX = 2.
         roomDB.add(new Room(3, 0, 0, "Library", "some spiders", -1, -1, -1, -1));
+        roomDB.get(2).setSecret(true);
+        roomDB.get(2).setSecretOpen(false);
+        roomDB.get(2).setSecretRoomIndex(9);
         roomDB.add(new Room(4, 0, 0, "Kitchen", "bats", -1, -1, -1, -1));
         roomDB.add(new Room(5, 0, 0, "Dining Room", "dust and an empty box", -1, -1, -1, -1));
         roomDB.add(new Room(6, 0, 0, "Vault", "3 walking skeletons", -1, -1, -1, -1));
         roomDB.add(new Room(7, 0, 0, "Parlor", "a treasure chest", -1, -1, -1, -1));
-        roomDB.add(new Room(8, 0, 0, "Secret Room", "piles of gold", -1, -1, -1, -1));
-        numRooms = 8;
+        roomDB.add(new Room(8, 0, 0, "Sun Room", "nothing but a faint glow coming in through the windows", -1, -1, -1, -1));
+        roomDB.add(new Room(9, 0, 0, "Bedroom", "a dead body", -1, -1, -1, -1));
+        numRooms = 9;
+        // stop mapping here :: number of Rooms for MAPPING is 'numRooms'
+        // SECRET room(s) below, these do not go on the overall map
+        // hard-coded secret room. INDEX = 9. to get back to room 3, go West.
+        roomDB.add(new Room(10, 0, 0, "Secret Room", "piles of gold", -1, -1, -1, -1));
+        roomDB.get(9).setiAmSecret(true);
+        roomDB.get(9).setSecretExit(2);     // this means you link to room 3 to exit secret room 10
     }
 
     //***********************************************************************
