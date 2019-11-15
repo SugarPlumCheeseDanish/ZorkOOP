@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="edc18683-75ac-4b6e-9fbd-2dba9c5d0865" name="Default Changelist" comment="" />
+    <list default="true" id="edc18683-75ac-4b6e-9fbd-2dba9c5d0865" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/ZorkOOP/Main.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/ZorkOOP/Main.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Main.java" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -23,7 +27,7 @@
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../StudentTranscript" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="settings.editor.selected.configurable" value="fileTemplates" />
   </component>
@@ -64,7 +68,9 @@
       <option name="presentableId" value="Default" />
       <updated>1573567657604</updated>
       <workItem from="1573567664916" duration="16368000" />
-      <workItem from="1573653825118" duration="11191000" />
+      <workItem from="1573653825118" duration="11246000" />
+      <workItem from="1573741645932" duration="5000" />
+      <workItem from="1573826229157" duration="2706000" />
     </task>
     <servers />
   </component>

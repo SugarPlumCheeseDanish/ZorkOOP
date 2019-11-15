@@ -23,39 +23,32 @@ public class Main {
     // the room maze field :: boolean value indicates whether a spot is taken by a room or not
     private static boolean[][] roomLocation = new boolean[ARRAY_TOP_BOUND][ARRAY_TOP_BOUND];     //defaults to false
 
-    // Variables for setting our pre-set DATABASE of ROOMS
-    // the roomDB :: preset via method call to setRoomDB()
+    // for pre-setting our ROOMS in setRoomDB()
     private static ArrayList<Room> roomDB = new ArrayList<>();
-    // total number of pre-set rooms in current implementation :: set in method setRoomDB()
     private static int numRooms;
 
-    // GENERAL USE variables
-    private static Scanner keyboard = new Scanner(System.in);
-    private static int navigationIndex;
-
-    // for testing as we code...
-    // build a foundRoom boolean array (mask) to use for printing out rooms encountered so far
-    private static boolean[][] foundRooms = new boolean[ARRAY_TOP_BOUND][ARRAY_TOP_BOUND]; // default false
+    // for USER MAP
     private static int[][] map = new int[ARRAY_TOP_BOUND][ARRAY_TOP_BOUND];  // default zero
+    private static boolean[][] foundRooms = new boolean[ARRAY_TOP_BOUND][ARRAY_TOP_BOUND]; // default false
+
+    // for telling the user when they have FOUND ALL THE (Basic or Secret) ROOMS
+    private static int numRoomsFound;
+    private static int numSecretsFound;
+
+    // GENERAL USE
+    private static Scanner keyboard = new Scanner(System.in);
 
     public static void main(String[] args){
+        String userStr;
+        int navigationIndex;
 
+        // generate the maze
         setBounds();
         setRoomDB();
         generateMaze();
 
-//        System.out.println("Room Location Array: ");
-//        System.out.println();
-//        for (int i = 0; i < ARRAY_TOP_BOUND; i++) {
-//            for (int j = 0; j < ARRAY_TOP_BOUND; j++) {
-//                System.out.print("\t"+ roomLocation[i][j]);
-//            }
-//            System.out.print("\n");
-//        }
-
         // general intro ::
         System.out.println("\nWelcome to Zork!");
-        String userStr;
 
         // Just for room one ::
         navigationIndex = 0;
@@ -63,17 +56,15 @@ public class Main {
 
         // for any choice after that ::
         while(true) {
-//            System.out.println("Top of do-while..........");
 
             // Navigation Step ::
             if (navigationIndex < 0) {
                 System.out.println("Invalid navigation option! Please try again...");
                 // redisplay same room, don't do anything else...
-                System.out.print(myRoom.display());
-                userStr = keyboard.nextLine();
+                 System.out.print(myRoom.display());
+                 userStr = keyboard.nextLine();
             }
             else {
-//                System.out.println("Valid option, yay!!!!");
                 myRoom = roomDB.get(navigationIndex);
                 unMask(myRoom);
                 if(myRoom.isSecret() && !(myRoom.isSecretOpen())) {unMaskSecret(myRoom);}
@@ -81,8 +72,8 @@ public class Main {
                 userStr = keyboard.nextLine();
             }
 
-            // For debuggin ::
-            System.out.println("User Choice: " + userStr);
+            // For debugging ::
+            // System.out.println("User Choice: " + userStr);
 
             // Set next choice ::
             if (userStr.equalsIgnoreCase("n")) {
@@ -106,7 +97,6 @@ public class Main {
             }
             else if (userStr.equalsIgnoreCase("*")) {
                 if(myRoom.isSecret() && myRoom.isSecretOpen()){
-                    // we have only one secret room right now, and it's room index 9.
                     navigationIndex = myRoom.getSecretRoomIndex();
                 } else {
                     System.out.println("Invalid navigation option. Please try again...");
@@ -176,18 +166,18 @@ public class Main {
 //****************************************************************************
 //      UNCOMMENT THIS CODE in order to SHOW a CHEAT MAP above the USER MAP
 //****************************************************************************
-       // System.out.println();
-       // for (int i = 0; i < ARRAY_TOP_BOUND; i++) {
-       //     for (int j = 0; j < ARRAY_TOP_BOUND; j++) {
-       //         if (map[i][j] != 0) {
-       //             System.out.print("\t" + map[i][j]);
-       //         }
-       //         else {
-       //             System.out.print("\t");
-       //         }
-       //     }
-       //     System.out.print("\n\n");
-       // }
+        System.out.println();
+        for (int i = 0; i < ARRAY_TOP_BOUND; i++) {
+            for (int j = 0; j < ARRAY_TOP_BOUND; j++) {
+                if (map[i][j] != 0) {
+                    System.out.print("\t" + map[i][j]);
+                }
+                else {
+                    System.out.print("\t");
+                }
+            }
+            System.out.print("\n\n");
+        }
 
 
         //************************************************************
