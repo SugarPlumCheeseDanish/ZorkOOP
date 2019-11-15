@@ -172,36 +172,50 @@ public class Main {
 //            System.out.print("\n\n");
 //        }
 //
-//        System.out.println("FULL Room Map: \n");
-//        System.out.println();
-//        for (int i = 0; i < ARRAY_TOP_BOUND; i++) {
-//            for (int j = 0; j < ARRAY_TOP_BOUND; j++) {
-//                if (map[i][j] != 0) {
-//                    System.out.print("\t" + map[i][j]);
-//                }
-//                else {
-//                    System.out.print("\t");
-//                }
-//            }
-//            System.out.print("\n\n");
-//        }
 
-//        System.out.println("X MARKS THE SPOT: \n");
-//        System.out.println();
+//****************************************************************************
+//      UNCOMMENT THIS CODE in order to SHOW a CHEAT MAP above the USER MAP
+//****************************************************************************
+       // System.out.println();
+       // for (int i = 0; i < ARRAY_TOP_BOUND; i++) {
+       //     for (int j = 0; j < ARRAY_TOP_BOUND; j++) {
+       //         if (map[i][j] != 0) {
+       //             System.out.print("\t" + map[i][j]);
+       //         }
+       //         else {
+       //             System.out.print("\t");
+       //         }
+       //     }
+       //     System.out.print("\n\n");
+       // }
+
+
+        //************************************************************
+        // USER MAP, with "STAR" Marks the Spot for current location
+        //************************************************************
         for (int i = 0; i < ARRAY_TOP_BOUND; i++) {
             for (int j = 0; j < ARRAY_TOP_BOUND; j++) {
                 if(foundRooms[i][j]){
+                    // show a special symbol on our CURRENT LOCATION
                     if(i == myRoom.getI() && j == myRoom.getJ()) {
-                        System.out.print("\t\u2606");
-                        // DISCARDED OPTIONS: ☠   \u274C == fat x   \u2606 == white star
+                        if (myRoom.isiAmSecret()){
+                            // if you are INSIDE the SECRET ROOM, show a SPECIAL STAR
+                            System.out.print("\t\u2388");
+                        }
+                        else {
+                            // otherwise, show a STAR to mark our current location in a normal room
+                            System.out.print("\t\u2606");
+                        }
                     }
+                    // otherwise show the room number
                     else {System.out.print("\t"+ map[i][j]);}
                 }
                 else {
+                    // if there's no room there, put a TAB (empty space)
                     System.out.print("\t");
                 }
             }
-            System.out.print("\n");
+            System.out.print("\n\n");
         }
 
 //        System.out.println("Rooms Found so far, BOOLEAN Array (this is our mask): \n");
@@ -212,7 +226,6 @@ public class Main {
 //            }
 //            System.out.print("\n\n");
 //        }
-
 
     }
 
